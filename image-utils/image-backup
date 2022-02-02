@@ -96,7 +96,7 @@ backup()
 {
   mntimg
   sync
-  rsync -aDH --partial --numeric-ids --delete --force --exclude "${MNTPATH}" --exclude '/dev' --exclude '/lost+found' --exclude '/media' --exclude '/mnt' \
+  rsync -aDH --info=progress2 --partial --numeric-ids --delete --force --exclude "${MNTPATH}" --exclude '/dev' --exclude '/lost+found' --exclude '/media' --exclude '/mnt' \
 --exclude '/proc' --exclude '/run' --exclude '/sys' --exclude '/tmp' --exclude '/var/swap' --exclude '/etc/udev/rules.d/70-persistent-net.rules' \
 --exclude '/var/lib/asterisk/astdb.sqlite3-journal' "${OPTIONS[@]}" / "${MNTPATH}/"
   if [[ $? -ne 0 && $? -ne 24 ]]; then
