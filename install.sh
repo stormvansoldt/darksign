@@ -1,17 +1,19 @@
 #!/bin/bash
 
-## Update everything and reboot
+## UPDATE ##
 apt update && apt upgrade -y
 rpi-update
 reboot now
 
-## Install packages
+## INSTALL ##
+# Apt packages
 apt install vim apache2 php php-curl sqlite3 php7.3-sqlite3 git rsync smbclient cifs-utils
-mkdir /root/bin && cd /root/bin && git clone https://github.com/seamusdemora/RonR-RPi-image-utils.git
-mv /root/bin/RonR-RPi-image-utils/image-* /usr/local/bin/
-chmod a+x /usr/local/bin/image-* 
+# image-utils (used for backups)
+mv image-utils/image-* /usr/local/bin/
+chmod a+x /usr/local/bin/image-*
 
-## Enable the sqlite3 extension in /etc/php/7.3/apache2/php.ini
+## CONFIGURATION ##
+## Enable sqlite3 extension in PHP
 PHP_INI=/etc/php/7.3/apache2/php.ini
 if [ -f "$FILE" ]; then
 	sed -i 's/;extension=sqlite3/extension=sqlite3/g' /etc/php/7.3/apache2/php.ini
