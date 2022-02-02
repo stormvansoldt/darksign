@@ -1,0 +1,142 @@
+#!/bin/bash
+
+trap '{ stty sane; echo ""; errexit "Aborted"; }' SIGINT SIGTERM
+
+MNTPATH="/tmp/image-chroot-mnt"
+
+errexit()
+{
+  echo ""
+  echo "$1"
+  echo ""
+  if [ "${MNTED}" = "TRUE" ]; then
+    umount "${MNTPATH}/boot/" &> /dev/null
+    umount "${MNTPATH}/" &> /dev/null
+    rmdir "${MNTPATH}/" &> /dev/null
+  fi
+  rmloop
+  echo "Usage: $0 imagefile"
+  echo ""
+  exit 1
+}
+
+mkloop()
+{
+  LOOP="$(losetup -f --show -P "${IMGFILE}")"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create loop device"
+  fi
+}
+
+rmloop()
+{
+  if [ "${LOOP}" != "" ]; then
+    losetup -d "${LOOP}"
+    LOOP="" 
+ fi
+}
+
+mntimg()
+{
+  MNTED=TRUE
+  mkloop
+  if [ ! -d "${MNTPATH}/" ]; then
+    mkdir "${MNTPATH}/"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to make ROOT partition mount point"
+    fi
+  fi
+  mount "${LOOP}p2" "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to mount image ROOT partition"
+  fi
+  if [ ! -d "${MNTPATH}/boot/" ]; then
+    mkdir -p "${MNTPATH}/boot/"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to make BOOT partition mount point"
+    fi
+  fi
+  mount "${LOOP}p1" "${MNTPATH}/boot/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to mount image BOOT partition"
+  fi
+}
+
+umntimg()
+{
+  umount "${MNTPATH}/boot/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to unmount image BOOT partition"
+  fi
+  umount "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to unmount image ROOT partition"
+  fi
+  rmloop
+  rmdir "${MNTPATH}/"
+  MNTED=FALSE
+}
+
+LOOP=""
+MNTED=FALSE
+if [ $(id -u) -ne 0 ]; then
+  errexit "Must be run as root user: sudo $0"
+fi
+PGMNAME="$(basename $0)"
+for PID in $(pidof -x -o %PPID "${PGMNAME}"); do
+  if [ ${PID} -ne $$ ]; then
+    errexit "${PGMNAME} is already running"
+  fi
+done
+IMGFILE="$1"
+if [ "${IMGFILE}" = "" ]; then
+  errexit "No image file specified"
+fi
+if [ ! -f "${IMGFILE}" ]; then
+  errexit "${IMGFILE} not found"
+fi
+mntimg
+SYS="$(file -b /bin/bash | sed -n 's|^.*, \(ARM\s*\S*\),.*$|\1|p')"
+IMG="$(file -b ${MNTPATH}/bin/bash | sed -n 's|^.*, \(ARM\s*\S*\),.*$|\1|p')"
+umntimg
+if [ "${SYS}" != "${IMG}" ]; then
+  errexit "${IMGFILE} architecture differs from system architecture"
+fi
+echo ""
+echo -n "chroot to ${IMGFILE} (y/n)? "
+while read -r -n 1 -s answer; do
+  if [[ ${answer} = [yYnN] ]]; then
+    echo "${answer}"
+    if [[ ${answer} = [yY] ]]; then
+      break
+    else
+      errexit "Aborted"
+    fi
+  fi
+done
+echo ""
+echo "Attempting to chroot to ${IMGFILE}"
+echo "Host root filesystem is available at /host-root-fs"
+echo "Use exit or ^D to terminate chroot"
+echo ""
+mntimg
+mkdir "${MNTPATH}/host-root-fs"
+mount --bind / "${MNTPATH}/host-root-fs"
+mount --bind /dev "${MNTPATH}/dev"
+mount --bind /sys "${MNTPATH}/sys"
+mount --bind /proc "${MNTPATH}/proc"
+mount --bind /dev/pts "${MNTPATH}/dev/pts"
+chroot "${MNTPATH}"
+umount "${MNTPATH}/dev/pts" "${MNTPATH}/proc" "${MNTPATH}/sys" "${MNTPATH}/dev"
+while read MNTPT
+do
+  if [[ "${MNTPT}" != "${MNTPATH}/boot" && "${MNTPT}" != "${MNTPATH}/host-root-fs" ]]; then
+    umount "${MNTPT}"
+  fi
+done <<< "$(findmnt -lR ${MNTPATH} | sed -n "s|^\(${MNTPATH}/\S\+\)\s\+.*$|\1|p")"
+umount "${MNTPATH}/host-root-fs"
+rmdir "${MNTPATH}/host-root-fs"
+umntimg
+echo ""
+echo "Exited chroot to ${IMGFILE}"
+echo ""
