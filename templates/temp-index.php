@@ -6,7 +6,7 @@
       background-repeat: no-repeat;
       background-color: #99ffff;
     }
-    
+
     img {
       width: 300px;
       height: auto;
@@ -37,6 +37,7 @@
 <body>
   <form action="submit.php" method="POST">
     <!-- INSERT CONTENT HERE -->
+    <input type="submit" text="Submit" name="submit" id="submit">
   </form>
   <div class="footer">
     <img src="darksign_logo.png">
