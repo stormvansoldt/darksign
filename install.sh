@@ -57,6 +57,13 @@ web_stack_config() {
 	chmod 666 /home/pi/media/__mainpl.json
 }
 
+## Backup the pi to the NFS share
+make_backup() {
+	DIR_NAME="$(uname -n)"
+	[ ! -d "/mnt/backup/$DIR_NAME" ] && echo "[!] Backup directory does not exist" && exit 1
+	image-backup -i "/mnt/backup/$DIR_NAME/$DIR_NAME.img"
+}
+
 usage() { echo "Usage: $0 [-uipwb]" 1>&2; exit 1; }
 while getopts "iuwpb" o; do
 	case "${o}" in
