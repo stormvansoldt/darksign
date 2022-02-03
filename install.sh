@@ -65,8 +65,8 @@ make_backup() {
 	image-backup -i "/mnt/backup/$DIR_NAME/$DIR_NAME.img"
 }
 
-usage() { echo "Usage: $0 [-uipwb]" 1>&2; exit 1; }
-while getopts "iuwpb" o; do
+usage() { echo "Usage: $0 [-uipwba]" 1>&2; exit 1; }
+while getopts "iuwpba" o; do
 	case "${o}" in
 		u)
 			update_sys
@@ -81,6 +81,12 @@ while getopts "iuwpb" o; do
 			web_stack_config
 			;;
 		b)
+			make_backup
+			;;
+		a)
+			update_sys
+			install_deps
+			prep_backup_dir
 			make_backup
 			;;
 		*)
