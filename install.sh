@@ -24,7 +24,7 @@ prep_backup_dir() {
 	fi
 
 	[ ! -d "/mnt/backup" ] && mkdir "/mnt/backup" && echo "[ ] /mnt/backup created"
-	mount /mnt/backup && echo "[ ] /mnt/backup mounted successfully"
+	mount /mnt/backup && echo "[ ] /mnt/backup mounted successfully" || exit 1
 
 	if [ "$BACKUP_DIR" == "raspberrypi" ]; then
 		echo "[*] Pi has default hostname 'raspberrypi'"
