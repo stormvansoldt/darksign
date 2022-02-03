@@ -27,7 +27,7 @@ prep_backup_dir() {
 	mount /mnt/backup && echo "[ ] /mnt/backup mounted successfully"
 
 	if [ "$BACKUP_DIR" == "raspberry" ]; then
-		echo "[*] Pi has default hostname 'raspberry'"
+		echo "[*] Pi has default hostname 'raspberrypi'"
 		read -p "[ ] Please make a new name for the backup directory (ex: Big-Cool-Pi): " BACKUP_DIR
 	fi
 
