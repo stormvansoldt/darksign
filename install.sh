@@ -17,7 +17,7 @@ install_deps() {
 ## Mount the NFS share from the WFZRS-PISIGNAGE server and make a dir for the current pi
 prep_backup_dir() {
 	BACKUP_DIR="$(uname -n)"
-	if [ grep "/mnt/backup" /etc/fstab ]; then
+	if grep "/mnt/backup" /etc/fstab; then
 		echo "[ ] fstab entry already exists for /mnt/backup"
 	else
 		echo "10.10.103.126:/DarksignBackups /mnt/backup nfs defaults 0 0" >> /etc/fstab
