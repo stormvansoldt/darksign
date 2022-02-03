@@ -79,6 +79,9 @@ while getopts "iuwpb" o; do
 		w)
 			web_stack_config
 			;;
+		b)
+			make_backup
+			;;
 		*)
 			usage
 			;;
