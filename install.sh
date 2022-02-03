@@ -4,7 +4,7 @@
 update_sys() {
 	apt update && apt upgrade -y
 	rpi-update
-	reboot now	
+	reboot now
 }
 
 ## Install dependencies from apt and the image-utils from the git repo
@@ -35,8 +35,8 @@ prep_backup_dir() {
 }
 
 ## CONFIGURATION ##
-# Enable sqlite3 extension in PHP
-config_apache() {
+web_stack_config() {
+	# Enable sqlite3 extension in PHP
 	PHP_INI="/etc/php/7.3/apache2/php.ini"
 	if [ -f "$PHP_INI" ]; then
 		sed -i 's/;extension=sqlite3/extension=sqlite3/g' "$PHP_INI"
@@ -56,3 +56,24 @@ config_apache() {
 	chmod -R g+rwX /var/www
 	chmod 666 /home/pi/media/__mainpl.json
 }
+
+usage() { echo "Usage: $0 [-uipwb]" 1>&2; exit 1; }
+while getopts "iuwpb" o; do
+	case "${o}" in
+		u)
+			update_sys
+			;;
+		i)
+			install_deps
+			;;
+		p)
+			prep_backup_dir
+			;;
+		w)
+			web_stack_config
+			;;
+		*)
+			usage
+			;;
+	esac
+done
