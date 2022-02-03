@@ -3,8 +3,8 @@
 ## Update the pi firmware and packages
 update_sys() {
 	apt update && apt upgrade -y
-	rpi-update
-	reboot now
+	#rpi-update
+	#reboot now
 }
 
 ## Install dependencies from apt and the image-utils from the git repo
@@ -26,12 +26,12 @@ prep_backup_dir() {
 	[ ! -d "/mnt/backup" ] && mkdir "/mnt/backup" && echo "[ ] /mnt/backup created"
 	mount /mnt/backup && echo "[ ] /mnt/backup mounted successfully"
 
-	if [ "$BACKUP_DIR" == "raspberry" ]; then
+	if [ "$BACKUP_DIR" == "raspberrypi" ]; then
 		echo "[*] Pi has default hostname 'raspberrypi'"
 		read -p "[ ] Please make a new name for the backup directory (ex: Big-Cool-Pi): " BACKUP_DIR
 	fi
 
-	mkdir "/mnt/backup/$BACKUP_DIR" && echo "[ ] /mnt/backup/$BACKUP_DIR created successfully" 
+	mkdir "/mnt/backup/$BACKUP_DIR" && echo "[ ] /mnt/backup/$BACKUP_DIR created successfully"
 }
 
 ## CONFIGURATION ##
@@ -61,6 +61,7 @@ web_stack_config() {
 make_backup() {
 	DIR_NAME="$(uname -n)"
 	[ ! -d "/mnt/backup/$DIR_NAME" ] && echo "[!] Backup directory does not exist" && exit 1
+	echo "[ ] Preparing to backup the pi..."
 	image-backup -i "/mnt/backup/$DIR_NAME/$DIR_NAME.img"
 }
 
