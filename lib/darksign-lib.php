@@ -20,10 +20,11 @@ function restartPiSi()
     'Content-Type: application/json'
   ]);
 
-  // Execute the request and save the response. 
+  // Execute the request
   curl_exec($curl);
   sleep(1);
   
   curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(['play' => true,]));
   curl_exec($curl);
+  curl_close($curl);
 }
