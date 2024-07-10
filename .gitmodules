@@ -1,0 +1,3 @@
+[submodule "RonR-RPi-image-utils"]
+	path = RonR-RPi-image-utils
+	url = https://github.com/seamusdemora/RonR-RPi-image-utils
