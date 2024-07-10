@@ -2,7 +2,7 @@
 
 ## Update the pi firmware and packages
 update_sys() {
-	apt update && apt upgrade -y
+	apt update && apt full-upgrade -y
 	#rpi-update
 	#reboot now
 }
