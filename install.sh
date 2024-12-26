@@ -9,7 +9,7 @@ update_sys() {
 
 ## Install dependencies from apt and the image-utils from the git repo
 install_deps() {
-	apt install vim apache2 php php-curl sqlite3 php7.3-sqlite3 git rsync nfs-common
+	apt update && apt install vim apache2 php php-curl sqlite3 php-sqlite3 git rsync nfs-common
 	mv image-utils/image-* /usr/local/bin/
 	chmod a+x /usr/local/bin/image-*
 }
@@ -36,8 +36,11 @@ prep_backup_dir() {
 
 ## CONFIGURATION ##
 web_stack_config() {
+	# Get the currently installed PHP version
+	PHP_VER=$(php -v | awk 'NR==1{print substr($2, 0, 3)}')
+
 	# Enable sqlite3 extension in PHP
-	PHP_INI="/etc/php/7.3/apache2/php.ini"
+	PHP_INI="/etc/php/${PHP_VER}/apache2/php.ini"
 	if [ -f "$PHP_INI" ]; then
 		sed -i 's/;extension=sqlite3/extension=sqlite3/g' "$PHP_INI"
 		sed -i 's/;extension=pdo_sqlite/extension=sqlite/g' "$PHP_INI"
