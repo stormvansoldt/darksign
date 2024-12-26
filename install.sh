@@ -9,7 +9,7 @@ update_sys() {
 
 ## Install dependencies from apt and the image-utils from the git repo
 install_deps() {
-	apt update && apt install vim apache2 php php-curl sqlite3 php-sqlite3 git rsync nfs-common
+	apt update && apt -y install vim apache2 php php-curl sqlite3 php-sqlite3 git rsync nfs-common
 	mv image-utils/image-* /usr/local/bin/
 	chmod a+x /usr/local/bin/image-*
 }
@@ -54,7 +54,7 @@ web_stack_config() {
 	rm /var/www/html/index.html
 
 	## Change some file/folder permissions. Do this after all files have been uploaded and modified
-	useradd pi www-data
+	usermod -aG www-data pi
 	chown -R www-data:www-data /var/www
 	chmod -R g+rwX /var/www
 	chmod 666 /home/pi/media/__mainpl.json
